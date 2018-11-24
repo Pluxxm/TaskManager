@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <scut.carson_ho.searchview.SearchView
+        android:id="@+id/searchview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:textSizeSearch="6dp"
+        app:textColorSearch="#9B9B9B"
+        app:textHintSearch="名字或电子邮件地址"
+        app:searchBlockHeight="150"
+        app:searchBlockColor="#ffffff"
+        android:layout_marginBottom="5dp"
+        />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_addfriends"
+        android:layout_below="@+id/searchview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>

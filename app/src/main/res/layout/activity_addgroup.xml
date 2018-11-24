@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/task_toolbar">
+    </include>
+    <LinearLayout
+        android:id="@+id/ll_groupname"
+        android:layout_below="@+id/task_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/colorPrimary">
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/tl_groupname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:textColorHint="#FFFFFF"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_gravity="center_vertical"
+            >
+            <EditText
+                android:id="@+id/et_groupname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="清单名称"
+                android:maxLength="25"
+                android:maxLines="1"
+                android:textColorHint="#FFFFFF"
+                android:theme="@style/EditTheme"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"/>
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tv_listmembers"
+        android:layout_below="@id/ll_groupname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="清单成员"
+        android:layout_margin="15dp"
+        android:textSize="15sp"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_listmembers"
+        android:layout_below="@id/tv_listmembers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp">
+    </android.support.v7.widget.RecyclerView>
+</RelativeLayout>

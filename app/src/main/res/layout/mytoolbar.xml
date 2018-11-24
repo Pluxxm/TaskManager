@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:circletextview="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorPrimary"
+    android:minHeight="?attr/actionBarSize">
+    <ImageView
+        android:id="@+id/id_userHeader"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:src="@drawable/icon_personal"
+        />
+    <!--<circletextimage.viviant.com.circletextimagelib.view.CircleTextImage-->
+        <!--android:id="@+id/id_userHeader"-->
+        <!--android:layout_width="41dp"-->
+        <!--android:layout_height="41dp"-->
+        <!--circletextview:circle_color="#1296db"-->
+        <!--android:layout_marginEnd="5dp"-->
+        <!--/>-->
+    <TextView
+        android:id="@+id/id_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="名字"
+        android:textColor="#ffffff"
+        android:layout_marginStart="25dp"
+        android:textSize="20sp"
+        />
+</android.support.v7.widget.Toolbar>
