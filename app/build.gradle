@@ -39,4 +39,7 @@ dependencies {
     implementation files('libs/pinyin4j-2.5.0.jar')
     implementation 'circletextimage.viviant.com.circletextimagelib:circletextimagelib:1.2.0'
     implementation 'com.carson_ho:SearchLayout:1.0.1'
+    compile 'com.android.support:cardview-v7:28.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.google.code.gson:gson:2.7'
 }

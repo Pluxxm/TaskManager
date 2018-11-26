@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.taskmanager">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,28 +12,28 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".SelectGroupActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity
+            android:name=".ItemClickActivity"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity
+            android:name=".AddGroupActivity"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity
+            android:name=".AddFriendsActivity"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity android:name=".FirstPage" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            >
-        </activity>
-        <activity android:name=".ItemClickActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            >
-        </activity>
-        <activity android:name=".AddGroupActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            >
-        </activity>
-        <activity android:name=".AddFriendsActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            >
-        </activity>
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".LoginActivity"></activity>
     </application>
 
 </manifest>
