@@ -23,6 +23,8 @@ public class DataUtil {
 
     private ArrayList<Integer> avatar;
     private ArrayList<MenuModel.menuItem> menuList;
+    //更改背景资源ID
+    private int backgroundID = R.drawable.background;
 
     private void initAvatarList(){
         avatar = new ArrayList<>();
@@ -92,4 +94,12 @@ public class DataUtil {
     public ArrayList<MenuModel.menuItem> getMenuList() {return menuList;}
 
     public void setMenuList(ArrayList<MenuModel.menuItem> menuList) {this.menuList = menuList;}
+
+    public int getBackgroundID() {
+        return backgroundID;
+    }
+
+    public void setBackgroundID(int backgroundID) {
+        this.backgroundID = backgroundID;
+    }
 }
