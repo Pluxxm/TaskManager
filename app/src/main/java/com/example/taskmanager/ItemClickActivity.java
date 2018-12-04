@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.taskmanager.adapter.TaskDetailRecyclerviewAdapter;
@@ -43,6 +44,7 @@ public class ItemClickActivity extends AppCompatActivity {
     private RecyclerView rv_tasks;
     private RecyclerView rv_tasks_done;
     private Button show_finishedBtn;
+    private RelativeLayout itemclick_rl;
     //TODO 自定义view 选择框+文本+星标
 //    private List<String> taskList;
 //    private List<String> taskDone;
@@ -106,6 +108,10 @@ public class ItemClickActivity extends AppCompatActivity {
 
     private void initView() {
         Log.d("Add",DataUtil.dataUtilInstance.getTaskTodo().toString());
+        itemclick_rl = findViewById(R.id.itemclick_rl);
+        if(DataUtil.dataUtilInstance.getBackgroundID() != 0){
+            itemclick_rl.setBackgroundResource(DataUtil.dataUtilInstance.getBackgroundID());
+        }
         addTask_et = (EditText)findViewById(R.id.id_et_addTask);
         addTask_et.clearFocus();
         //Recyclerview的设置
@@ -287,6 +293,8 @@ public class ItemClickActivity extends AppCompatActivity {
         super.onResume();
 //        taskDetailRecyclerviewAdapter.notifyDataSetChanged();
 //        adapterDone.notifyDataSetChanged();
+        itemclick_rl = findViewById(R.id.itemclick_rl);
+        itemclick_rl.setBackgroundResource(DataUtil.dataUtilInstance.getBackgroundID());
     }
 
     public void getUnfinishedTodos( int menuId,  int userId){

@@ -8,5 +8,4 @@
     android:minHeight="?attr/actionBarSize"
     android:theme="@style/TaskToolbar"
     app:popupTheme="@style/OverflowMenuStyle">
-
 </android.support.v7.widget.Toolbar>
