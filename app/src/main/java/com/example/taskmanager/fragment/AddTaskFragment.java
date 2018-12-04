@@ -1,6 +1,7 @@
 package com.example.taskmanager.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,18 +13,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.taskmanager.DataUtil;
-import com.example.taskmanager.ItemClickActivity;
 import com.example.taskmanager.MainActivity;
 import com.example.taskmanager.R;
 import com.example.taskmanager.SpinnerPopupwindow;
+import com.example.taskmanager.bean.UserBean;
+import com.example.taskmanager.network.apis.AddTodo;
+import com.example.taskmanager.network.model.BaseHttpModel;
+import com.example.taskmanager.network.model.MenuModel;
+import com.example.taskmanager.network.model.TodoModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +47,9 @@ public class AddTaskFragment extends Fragment {
     private SpinnerPopupwindow spinnerPopupwindow;
     private FloatingActionButton fab; //调整它的显示与隐藏
     private String value; //选中的任务组的名字
+    private int selectedId;
+    private ArrayList<MenuModel.menuItem> menuList;
+    private UserBean user;
 
     @SuppressLint("RestrictedApi")
     @Nullable
@@ -59,7 +69,12 @@ public class AddTaskFragment extends Fragment {
         taskGroup = new ArrayList<>();
         taskGroup.addAll(DataUtil.dataUtilInstance.getGroup());
 
+        menuList = DataUtil.dataUtilInstance.getMenuList();
+
         value = taskGroup.get(0);
+        selectedId = menuList.get(0).getMenu_id();
+
+        user = DataUtil.dataUtilInstance.getLoginer();
     }
 
     private void initView(View v) {
@@ -135,9 +150,10 @@ public class AddTaskFragment extends Fragment {
                 if(!et_addtip.getText().toString().isEmpty()){
                     String tip = et_addtip.getText().toString();
                     //TODO 网络请求
-                    List<String> taskTodo = new ArrayList<>(DataUtil.dataUtilInstance.getTaskTodo());
-                    taskTodo.add(tip);
-                    DataUtil.dataUtilInstance.setTaskTodo(taskTodo);
+                    createTodo(et_addtip.getText().toString());
+                    ArrayList<TodoModel.todoItem> taskTodo = new ArrayList<>(DataUtil.dataUtilInstance.getTaskTodo());
+                    // taskTodo.add(tip);
+                    // DataUtil.dataUtilInstance.setTaskTodo(taskTodo);
                     Log.d("Add",DataUtil.dataUtilInstance.getTaskTodo().toString());
                 }
             }
@@ -148,10 +164,29 @@ public class AddTaskFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             value = taskGroup.get(spinnerPopupwindow.getText());
+            selectedId = menuList.get(spinnerPopupwindow.getText()).getMenu_id();
+            Log.i("selectedId", selectedId+"");
             tv_addtip.setText(value);
             et_addtip.setHint("在"+value+"中添加任务");
             spinnerPopupwindow.dismissPopupWindow();
         }
     };
+
+    // 发送网络请求添加todo
+    public void createTodo(final String todoTitle){
+        final int finalMenuId = selectedId;
+        final int finalUserId = user.getUserId();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel createTodoModel = AddTodo.addTodo(finalMenuId, finalUserId, todoTitle);
+                Log.i("errorCode", createTodoModel.getCodeText());
+                Log.i("errMsg", createTodoModel.getMessageText());
+                if (createTodoModel.getCodeText().equals("000000")){
+                    // 添加成功，收起软键盘
+                }
+            }
+        }).start();
+    }
 
 }

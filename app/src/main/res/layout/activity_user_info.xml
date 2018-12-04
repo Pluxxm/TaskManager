@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.taskmanager.UserInfoActivity">
+
+    <RelativeLayout
+        android:id="@+id/top_pannel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+        <ImageView
+            android:id="@+id/return_arrow"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/return_arrow" />
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/icon_personal"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="10dp"/>
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/avatar"
+            android:text="啦啦啦"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:layout_marginBottom="20dp"
+            android:textSize="20sp"/>
+        <!--TabLayout中tabIndicatorColor属性为标签底部下滑线颜色，
+        tabTextColor为标签未选中时字体颜色,
+        tabSelectedTextColor为选中时字体颜色-->
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            app:tabIndicatorColor="@color/white"
+            app:tabTextColor="@color/whiteSmoke"
+            app:tabSelectedTextColor="@color/white"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name" />
+    </RelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_below="@id/top_pannel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</RelativeLayout>

@@ -1,17 +1,20 @@
 package com.example.taskmanager;
 
 import com.example.taskmanager.bean.UserBean;
+import com.example.taskmanager.network.model.MenuModel;
+import com.example.taskmanager.network.model.TodoModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class DataUtil {
     //一个清单组里完成与未完成的任务
-    private List<String> taskTodo;
-    private List<String> taskDone;
+//    private List<String> taskTodo;
+//    private List<String> taskDone;
+    private ArrayList<TodoModel.todoItem> taskTodo = new ArrayList<>();
+    private ArrayList<TodoModel.todoItem> taskDone = new ArrayList<>();
     //所有的任务组
-    private List<String> group;
+    private ArrayList<String> group;
     public static DataUtil dataUtilInstance = new DataUtil();
     //登录者的信息
     private UserBean loginer;
@@ -19,6 +22,7 @@ public class DataUtil {
     //TODO 发网络请求消息获取todo和done
 
     private ArrayList<Integer> avatar;
+    private ArrayList<MenuModel.menuItem> menuList;
 
     private void initAvatarList(){
         avatar = new ArrayList<>();
@@ -37,7 +41,7 @@ public class DataUtil {
     }
 
 
-    public List<String> getGroup() {
+    public ArrayList<String> getGroup() {
         return group;
     }
 
@@ -45,7 +49,7 @@ public class DataUtil {
         group.add(groupName);
     }
 
-    void setGroup(List<String> group) {
+    void setGroup(ArrayList<String> group) {
         this.group = group;
     }
 
@@ -64,24 +68,28 @@ public class DataUtil {
         group = new ArrayList<>();
     }
 
-    public DataUtil(List<String> taskTodo, List<String> taskDone) {
+    public DataUtil(ArrayList<TodoModel.todoItem> taskTodo, ArrayList<TodoModel.todoItem> taskDone) {
         this.taskTodo = taskTodo;
         this.taskDone = taskDone;
     }
 
-    public List<String> getTaskTodo() {
+    public ArrayList<TodoModel.todoItem> getTaskTodo() {
         return taskTodo;
     }
 
-    public void setTaskTodo(List<String> taskTodo) {
+    public void setTaskTodo(ArrayList<TodoModel.todoItem> taskTodo) {
         this.taskTodo = taskTodo;
     }
 
-    public List<String> getTaskDone() {
+    public ArrayList<TodoModel.todoItem> getTaskDone() {
         return taskDone;
     }
 
-    public void setTaskDone(List<String> taskDone) {
+    public void setTaskDone(ArrayList<TodoModel.todoItem> taskDone) {
         this.taskDone = taskDone;
     }
+
+    public ArrayList<MenuModel.menuItem> getMenuList() {return menuList;}
+
+    public void setMenuList(ArrayList<MenuModel.menuItem> menuList) {this.menuList = menuList;}
 }

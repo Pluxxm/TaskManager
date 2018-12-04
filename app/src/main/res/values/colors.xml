@@ -6,7 +6,9 @@
     <color name="colorAccent">#D81B60</color>
     <color name="editColor">#008577</color>
     <color name="white">#ffffff</color>
+    <color name="whiteSmoke">	#F5F5F5</color>
     <color name="black">#000000</color>
     <color name="hintColor">#A9A9A9</color>
+    <color name="borderColor">#DCDCDC</color>
     <color name="blue">#7FB5E3</color>
 </resources>

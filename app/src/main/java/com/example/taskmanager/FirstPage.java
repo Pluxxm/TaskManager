@@ -31,7 +31,13 @@ public class FirstPage extends AppCompatActivity {
             String account = pref.getString("account","");
             String password = base64.decode(pref.getString("password", ""));
             // 发送登录请求
-            login(account, password);
+            if (!account.equals("") && !password.equals(""))
+                // login(account, password);
+            {
+                Intent intent2 = new Intent(FirstPage.this, MainActivity.class);
+                startActivity(intent2);
+            }
+
         }
     }
     private void init() {

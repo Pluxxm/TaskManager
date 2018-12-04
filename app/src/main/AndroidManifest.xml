@@ -11,8 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SelectGroupActivity">
-        </activity>
+        <activity android:name=".SelectGroupActivity" />
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
@@ -25,15 +24,18 @@
         <activity
             android:name=".AddFriendsActivity"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
-        <activity android:name=".FirstPage" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".FirstPage">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".UserInfoActivity" />
+        <activity android:name=".AccountDetail" />
+        <activity android:name=".ChangePwd"></activity>
     </application>
 
 </manifest>

@@ -20,6 +20,8 @@ public class LoginModel extends BaseModel {
         private String userIdText;
         @SerializedName("isFirstTime")
         private Boolean isFirstTime;
+        @SerializedName("name")
+        private String name;
         public String getTokenText(){
             return tokenText;
         }
@@ -34,6 +36,8 @@ public class LoginModel extends BaseModel {
         }
         public Boolean getIsFirstTime(){ return this.isFirstTime; }
         public void setIsFirstTime(Boolean isFirstTime) {this.isFirstTime = isFirstTime;}
+        public String getName(){return name;}
+        public void setName(String name){this.name = name;}
     }
 
     @SerializedName("data")

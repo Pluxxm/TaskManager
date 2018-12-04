@@ -19,7 +19,7 @@ public class SelectGroupActivity extends AppCompatActivity {
 
     private List<CheckBox> checkBoxes;
     private Button btn_selectGroup;
-    private List<String> mList;
+    private ArrayList<String> mList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

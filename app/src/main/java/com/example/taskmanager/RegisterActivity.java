@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.taskmanager.network.apis.Register;
 import com.example.taskmanager.network.model.BaseHttpModel;
@@ -61,6 +62,13 @@ public class RegisterActivity extends AppCompatActivity {
                     // 跳转到登录页面
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
+                } else if (registerModel.getCodeText().equals("TODO00001")){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(RegisterActivity.this, "已有用户以此电子邮箱注册", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         }).start();

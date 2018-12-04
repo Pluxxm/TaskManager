@@ -1,6 +1,7 @@
 package com.example.taskmanager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 
 import com.example.taskmanager.adapter.AddGroupRectclerviewAdapter;
 import com.example.taskmanager.bean.UserBean;
+import com.example.taskmanager.network.apis.AddMenu;
+import com.example.taskmanager.network.model.BaseHttpModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,11 +114,12 @@ public class AddGroupActivity extends AppCompatActivity {
                            menuItem.setEnabled(false);
                         }else{
                             //有内容则传回MainActivity
-                            String groupName = et_groupname.getText().toString();
-                            DataUtil.dataUtilInstance.addGroupItem(groupName);
-                            Intent intent = new Intent(AddGroupActivity.this, MainActivity.class);
-//                            intent.putExtra("goupName",groupName);
-                            startActivity(intent);
+                            addGroup(et_groupname.getText().toString());
+//                            String groupName = et_groupname.getText().toString();
+//                            DataUtil.dataUtilInstance.addGroupItem(groupName);
+//                            Intent intent = new Intent(AddGroupActivity.this, MainActivity.class);
+////                            intent.putExtra("goupName",groupName);
+//                            startActivity(intent);
                         }
                         break;
                     default:
@@ -124,5 +128,24 @@ public class AddGroupActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+    public void addGroup(String groupName){
+        Log.i("groupName", groupName);
+        final String account;
+        SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
+        account = pref.getString("account","");
+        final String menu = groupName;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel addGroupModel = AddMenu.addMenu(account, menu);
+                Log.i("errCode", addGroupModel.getCodeText());
+                Log.i("errMsg", addGroupModel.getMessageText());
+                if(addGroupModel.getCodeText().equals("000000")){
+                    Intent intent = new Intent(AddGroupActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
+            }
+        }).start();
     }
 }

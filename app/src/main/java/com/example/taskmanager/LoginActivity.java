@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.taskmanager.network.apis.GetMenus;
 import com.example.taskmanager.network.apis.Login;
@@ -64,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (loginModel.getCodeText().equals("000000")) {
                     // 登录成功，把account,name,pwd都保存下，token,userId,
                     LoginModel.Data loginData = loginModel.getDataText();
-                    saveUserInfo(account,password);
+                    saveUserInfo(account,password,loginData.getName());
                     token.setToken(loginData.getTokenText());
                     userId.setUserId(Integer.parseInt(loginData.getUserIdText()));
                     //  isFirstTime为true 跳转到select
@@ -75,15 +76,23 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                     }
+                }else if (loginModel.getCodeText().equals("TODO000003")){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginActivity.this, "用户名或者密码不匹配", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         }).start();
     }
 
-    private void saveUserInfo(String account, String password ){
+    private void saveUserInfo(String account, String password, String name){
         SharedPreferences.Editor user = getSharedPreferences("user_data",MODE_PRIVATE).edit();
         user.putString("account", account);
         user.putString("password", base64.encode(password));
+        user.putString("name", name);
         user.apply();
     }
 }

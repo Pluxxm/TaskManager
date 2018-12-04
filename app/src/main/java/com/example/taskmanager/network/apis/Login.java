@@ -36,6 +36,7 @@ public class Login {
         RequestBody body = RequestBody.create(JSON, params.toString());
 
         String json = HttpUtil.post(Url.login, body);
+        Log.i("json", json);
         return new Gson().fromJson(json, LoginModel.class);
     }
 }

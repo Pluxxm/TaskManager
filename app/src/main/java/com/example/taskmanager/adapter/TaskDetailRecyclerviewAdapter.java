@@ -1,6 +1,7 @@
 package com.example.taskmanager.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Paint;
 import android.os.Handler;
@@ -12,24 +13,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.taskmanager.DataUtil;
+import com.example.taskmanager.ItemClickActivity;
 import com.example.taskmanager.R;
+import com.example.taskmanager.network.apis.ChangeTodoStatus;
+import com.example.taskmanager.network.model.BaseHttpModel;
+import com.example.taskmanager.network.model.TodoModel;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
         <TaskDetailRecyclerviewAdapter.MyViewHolder> implements View.OnClickListener, View.OnLongClickListener {
     private Context context;
-    private List<String> mListTodo;
-    private List<String> mListDone;
+    private ArrayList<TodoModel.todoItem> mListTodo;
+    private ArrayList<TodoModel.todoItem> mListDone;
     private static final int UPDATE_TEXT = 1;  //传递TODO的消息，更新上部的UI
     private static final int UPDATE_DONE = 2;  //传递DONE的消息，更新下部的UI
     private OnItemClickListener onItemClickListener;
     private RecyclerView.Adapter adapter; //传进来的adapter
     private int flag; //标识为上部还是下部 0为上部  1为下部
+    private ItemClickActivity itemClickActivity;
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler(){
         @Override
@@ -38,14 +43,16 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
             switch (msg.what){
                 case UPDATE_TEXT:
                     position = msg.arg1;
-                    removeData(position);
-                    DataUtil.dataUtilInstance.setTaskTodo(mListTodo);
+                    Log.i("position", position+"");
+                    Log.i("todoId", DataUtil.dataUtilInstance.getTaskTodo().get(position).getId()+"");
+                    changeStatus(DataUtil.dataUtilInstance.getTaskTodo().get(position).getId(),true, position);
+                    //removeData(position);
                     Log.d("TODO",mListTodo+"");
                     break;
                 case UPDATE_DONE:
                     position = msg.arg1;
-                    removeData(position);
-                    DataUtil.dataUtilInstance.setTaskDone(mListDone);
+                    changeStatus(DataUtil.dataUtilInstance.getTaskDone().get(position).getId(),false, position);
+                    //removeData(position);
                     Log.d("TODO",mListDone+"");
                     break;
                 default:
@@ -56,13 +63,14 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
 
 
 
-    public TaskDetailRecyclerviewAdapter(Context context, List<String> mListTodo
-            , List<String> mListDone, int flag, RecyclerView.Adapter adapter) {
+    public TaskDetailRecyclerviewAdapter(Context context, ArrayList<TodoModel.todoItem> mListTodo
+            , ArrayList<TodoModel.todoItem> mListDone, int flag, RecyclerView.Adapter adapter) {
         this.context = context;
         this.mListTodo = mListTodo;
         this.mListDone = mListDone;
         this.flag = flag;
         this.adapter = adapter;
+        this.itemClickActivity = (ItemClickActivity)context;
 
         DataUtil.dataUtilInstance.setTaskDone(mListDone);
         DataUtil.dataUtilInstance.setTaskTodo(mListTodo);
@@ -73,6 +81,7 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
             mListTodo.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position,mListTodo.size());
+            DataUtil.dataUtilInstance.setTaskTodo(mListTodo);
             //if(adapter != null)
             //adapter.notifyDataSetChanged();
         }else if(flag == 1){
@@ -81,6 +90,7 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
             notifyItemRangeChanged(position,mListDone.size());
             if(adapter != null)
                 adapter.notifyDataSetChanged();
+            DataUtil.dataUtilInstance.setTaskDone(mListDone);
         }
     }
 
@@ -102,10 +112,10 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
         myViewHolder.itemView.setTag(position);
         if(flag == 1){
             myViewHolder.checkBox.setChecked(true);
-            myViewHolder.taskDetail.setText(mListDone.get(position));
+            myViewHolder.taskDetail.setText(mListDone.get(position).getTitle());
             myViewHolder.taskDetail.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
         }else if(flag == 0){
-            myViewHolder.taskDetail.setText(mListTodo.get(position));
+            myViewHolder.taskDetail.setText(mListTodo.get(position).getTitle());
             myViewHolder.taskDetail.getPaint().setFlags(0);
             myViewHolder.checkBox.setChecked(false);
         }
@@ -128,7 +138,7 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
                                 message.what = UPDATE_TEXT;
                                 message.arg1 = position;
                                 message.arg2 = mListTodo.size();
-                                Thread.sleep(1000);
+                                Thread.sleep(800);
                                 handler.sendMessage(message);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -208,4 +218,35 @@ public class TaskDetailRecyclerviewAdapter extends RecyclerView.Adapter
         }
     }
 
+    public void changeStatus(int todoId, boolean status, int position){
+        final int finalTodoId = todoId;
+        final boolean finalStatus = status;
+        final int finalPosition = position;
+        //final ArrayList<TodoModel.todoItem> finalList = list;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel changeStatus = ChangeTodoStatus.changeTodoStatus(finalTodoId, finalStatus);
+                Log.i("changeStatus", changeStatus.getCodeText());
+                Log.i("changeStatus", changeStatus.getMessageText());
+                if (changeStatus.getCodeText().equals("000000")){
+                    itemClickActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(finalStatus == true) {
+                                // todo => done
+                                removeData(finalPosition);
+                                //DataUtil.dataUtilInstance.setTaskTodo(finalList);
+                            } else{
+                                // done => todo
+                                removeData(finalPosition);
+                                //DataUtil.dataUtilInstance.setTaskDone(finalList);
+                            }
+                        }
+                    });
+
+                }
+            }
+        }).start();
+    }
 }
