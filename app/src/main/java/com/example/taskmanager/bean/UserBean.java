@@ -5,6 +5,7 @@ public class UserBean {
     int avatar;
     String name;
     String mail;
+    int userId;
 
     public UserBean(int avatar, String name, String mail) {
         this.avatar = avatar;
@@ -15,6 +16,13 @@ public class UserBean {
     public UserBean(int avatar, String name) {
         this.avatar = avatar;
         this.name = name;
+    }
+
+    public UserBean(int avatar, String name, String mail, int userId) {
+        this.avatar = avatar;
+        this.name = name;
+        this.mail = mail;
+        this.userId = userId;
     }
 
     public String getMail() {
@@ -39,5 +47,13 @@ public class UserBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

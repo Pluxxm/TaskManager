@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.example.taskmanager.widget.CommonItem
+        android:id="@+id/ci_account_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:item_img="@drawable/account_detail"
+        app:item_title="账户详情">
+    </com.example.taskmanager.widget.CommonItem>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/borderColor"/>
+
+    <com.example.taskmanager.widget.CommonItem
+        android:id="@+id/ci_log_out"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:item_img="@drawable/log_out"
+        app:item_title="登出">
+    </com.example.taskmanager.widget.CommonItem>
+
+</LinearLayout>

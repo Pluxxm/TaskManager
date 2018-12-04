@@ -15,25 +15,25 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.taskmanager.adapter.TaskDetailRecyclerviewAdapter;
 import com.example.taskmanager.bean.SortBean;
-
-import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+import com.example.taskmanager.network.apis.AddTodo;
+import com.example.taskmanager.network.apis.ChangeTodoStatus;
+import com.example.taskmanager.network.apis.DeleteTodo;
+import com.example.taskmanager.network.apis.GetTodosByMenu;
+import com.example.taskmanager.network.model.BaseHttpModel;
+import com.example.taskmanager.network.model.TodoModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class ItemClickActivity extends AppCompatActivity {
@@ -44,19 +44,28 @@ public class ItemClickActivity extends AppCompatActivity {
     private RecyclerView rv_tasks_done;
     private Button show_finishedBtn;
     //TODO 自定义view 选择框+文本+星标
-    private List<String> taskList;
-    private List<String> taskDone;
+//    private List<String> taskList;
+//    private List<String> taskDone;
     public TaskDetailRecyclerviewAdapter taskDetailRecyclerviewAdapter;
     private TaskDetailRecyclerviewAdapter adapterDone;
+
+    // arrayList {todoId,title,isFinished}
+    int userId = 0;
+    int menuId = 0;
+    private ArrayList<TodoModel.todoItem> taskList = new ArrayList<>();
+    private ArrayList<TodoModel.todoItem> taskDone = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itemclick);
 
-        initList();
+        menuId = getIntent().getIntExtra("menuId", 0);
+        userId = getIntent().getIntExtra("userId", 0);
+        getUnfinishedTodos( menuId, userId);
+        getFinishedTodos(menuId, userId);
+
         initToolbar();
-        initView();
         initButton();
     }
 
@@ -80,25 +89,25 @@ public class ItemClickActivity extends AppCompatActivity {
     //fake数据
     private void initList() {
         //TODO 请求网络拿到list 赋值给DataUtil
-        taskList = new ArrayList<>();
-        taskList.add("今天我要睡觉");
-        taskList.add("今天我要学习");
-        taskList.add("看书");
-        taskList.add("反反复复付付");
-        taskList.add("少时诵诗书");
+//        taskList = new ArrayList<>();
+//        taskList.add("今天我要睡觉");
+//        taskList.add("今天我要学习");
+//        taskList.add("看书");
+//        taskList.add("反反复复付付");
+//        taskList.add("少时诵诗书");
         DataUtil.dataUtilInstance.setTaskTodo(taskList);
 
-        taskDone = new ArrayList<>();
-        taskDone.add("啦啦啦啦啦");
-        taskDone.add("嘎嘎嘎嘎嘎过");
-        taskDone.add("生死时速是");
-        taskDone.add("柔柔弱弱若若");
+//        taskDone.add("啦啦啦啦啦");
+//        taskDone.add("嘎嘎嘎嘎嘎过");
+//        taskDone.add("生死时速是");
+//        taskDone.add("柔柔弱弱若若");
         DataUtil.dataUtilInstance.setTaskDone(taskDone);
     }
 
     private void initView() {
         Log.d("Add",DataUtil.dataUtilInstance.getTaskTodo().toString());
         addTask_et = (EditText)findViewById(R.id.id_et_addTask);
+        addTask_et.clearFocus();
         //Recyclerview的设置
         rv_tasks = (RecyclerView)findViewById(R.id.id_rv_tasks);
         rv_tasks_done = (RecyclerView)findViewById(R.id.id_rv_tasks_done);
@@ -124,17 +133,23 @@ public class ItemClickActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onItemLongClick(View view, int position) {
-                new AlertDialog.Builder(ItemClickActivity.this)
+            public void onItemLongClick(View view, final int position) {
+                AlertDialog alertDialog = null;
+                alertDialog = new AlertDialog.Builder(ItemClickActivity.this)
                         .setTitle("确认删除吗？")
                         .setNegativeButton("取消",null)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                taskDetailRecyclerviewAdapter.removeData(i);
+                                // taskDetailRecyclerviewAdapter.removeData(i);
+                                Log.i("position", position+"");
+                                Log.i("todoId", taskList.get(position).getId()+"");
+                                deleteTodo(taskList.get(position).getId(), i);
                             }
-                        })
-                        .show();
+                        }).create();
+                alertDialog.show();
+                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
             }
         });
 
@@ -155,17 +170,23 @@ public class ItemClickActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onItemLongClick(View view, int position) {
-                new AlertDialog.Builder(ItemClickActivity.this)
+            public void onItemLongClick(View view, final int position) {
+                AlertDialog alert = null;
+                alert = new AlertDialog.Builder(ItemClickActivity.this)
                         .setTitle("确认删除吗？")
                         .setNegativeButton("取消",null)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                taskDetailRecyclerviewAdapter.removeData(i);
+                                //taskDetailRecyclerviewAdapter.removeData(i);
+                                Log.i("position", position+"");
+                                Log.i("todoId", taskDone.get(position).getId()+"");
+                                deleteTodo(taskDone.get(position).getId(), i);
                             }
-                        })
-                        .show();
+                        }).create();
+                alert.show();
+                alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+                alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
             }
         });
 
@@ -174,7 +195,8 @@ public class ItemClickActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(!addTask_et.getText().toString().isEmpty()){
-                    taskList.add(addTask_et.getText().toString());
+                    // taskList.add(addTask_et.getText().toString());
+                    createTodo(addTask_et.getText().toString());
                     Log.d("new",addTask_et.getText().toString());
                     taskDetailRecyclerviewAdapter.notifyDataSetChanged();
                     addTask_et.setText("");
@@ -230,17 +252,17 @@ public class ItemClickActivity extends AppCompatActivity {
                         List<SortBean> taskListPinyin = new ArrayList<>();
                         for (int i = 0; i < taskList.size(); i++){
                             //获取任务首字母
-                            String taskF = PinyinUtil.getPingYin(taskList.get(i))
+                            String taskF = PinyinUtil.getPingYin(taskList.get(i).getTitle())
                                     .substring(0,1).toUpperCase();
                             if (!taskF.matches("[A-Z]")) {
                                 taskF = "#";
                             }
-                            taskListPinyin.add(new SortBean(taskList.get(i), taskF));
+                            taskListPinyin.add(new SortBean(taskList.get(i).getTitle(), taskF));
                         }
                         Collections.sort(taskListPinyin,new PinyinComparator());
                         taskList.clear();
                         for (int j = 0; j < taskListPinyin.size(); ++j){
-                            taskList.add(taskListPinyin.get(j).getTask());
+                            //taskList.add(taskListPinyin.get(j).getTask());
                         }
                         taskDetailRecyclerviewAdapter.notifyDataSetChanged();
                         break;
@@ -263,7 +285,107 @@ public class ItemClickActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        taskDetailRecyclerviewAdapter.notifyDataSetChanged();
-        adapterDone.notifyDataSetChanged();
+//        taskDetailRecyclerviewAdapter.notifyDataSetChanged();
+//        adapterDone.notifyDataSetChanged();
+    }
+
+    public void getUnfinishedTodos( int menuId,  int userId){
+        final int finalMenuId = menuId;
+        final int finalUserId = userId;
+        final int finalSelection = 1;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                 TodoModel todoModel = GetTodosByMenu.getTodosByMenu(finalMenuId, finalUserId,finalSelection);
+                 if(todoModel.getCodeText().equals("000000")){
+                     taskList = todoModel.getTodos();
+                     initList();
+                     runOnUiThread(new Runnable() {
+                         @Override
+                         public void run() {
+                             initView();
+                         }
+                     });
+                 }
+            }
+        }).start();
+    }
+
+    public void getFinishedTodos(int menuId, int userId){
+        final int finalMenuId = menuId;
+        final int finalUserId = userId;
+        final int finalSelection = 2;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TodoModel todoModel = GetTodosByMenu.getTodosByMenu(finalMenuId, finalUserId,finalSelection);
+                if(todoModel.getCodeText().equals("000000")){
+                    taskDone = todoModel.getTodos();
+                    for (int i=0; i<taskDone.size();i++){
+                        Log.i("todoId", taskDone.get(i).getId()+"");
+                        Log.i("title", taskDone.get(i).getTitle());
+                        Log.i("isFinished", taskDone.get(i).getIsFinished()+"");
+                    }
+                    initList();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            initView();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    public void createTodo(final String todoTitle){
+        final int finalMenuId = menuId;
+        final int finalUserId = userId;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel createTodoModel = AddTodo.addTodo(finalMenuId, finalUserId, todoTitle);
+                Log.i("errorCode", createTodoModel.getCodeText());
+                Log.i("errMsg", createTodoModel.getMessageText());
+                if (createTodoModel.getCodeText().equals("000000")){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(ItemClickActivity.this, "添加成功"
+                                    , Toast.LENGTH_SHORT).show();
+                            addTask_et.clearFocus();
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                    });
+                    getFinishedTodos(finalMenuId, finalUserId);
+                    getUnfinishedTodos(finalMenuId, finalUserId);
+                }
+            }
+        }).start();
+    }
+
+    public void deleteTodo(int todoId, final int i){
+        final int finalTodoId = todoId;
+        final int finalMenuId = menuId;
+        final int finalUserId = userId;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel deleteTodoModel = DeleteTodo.deleteTodo(finalTodoId);
+                Log.i("deleteTodo", deleteTodoModel.getCodeText()+"");
+                Log.i("deleteTodo", deleteTodoModel.getMessageText());
+                if(deleteTodoModel.getCodeText().equals("0000000")){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(ItemClickActivity.this, "删除成功"
+                                    , Toast.LENGTH_SHORT).show();
+                            taskDetailRecyclerviewAdapter.removeData(i);
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 }

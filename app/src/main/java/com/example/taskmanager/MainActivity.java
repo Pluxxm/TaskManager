@@ -2,6 +2,8 @@ package com.example.taskmanager;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,24 +27,31 @@ import com.example.taskmanager.adapter.TaskRecyclerviewAdapter;
 import com.example.taskmanager.bean.TaskGroupBean;
 import com.example.taskmanager.bean.UserBean;
 import com.example.taskmanager.fragment.AddTaskFragment;
+import com.example.taskmanager.network.apis.DeleteMenu;
+import com.example.taskmanager.network.apis.GetMenus;
+import com.example.taskmanager.network.model.BaseHttpModel;
+import com.example.taskmanager.network.model.MenuModel;
+import com.example.taskmanager.network.model.TodoModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import circletextimage.viviant.com.circletextimagelib.view.CircleTextImage;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView taskRecyclerview;
     private TaskRecyclerviewAdapter taskRecyclerviewAdapter;
     //recyclerview中的数据
-    private List<TaskGroupBean> mList;
+    private List<TaskGroupBean> mList = new ArrayList<TaskGroupBean>();
     private Toolbar mToolbar;
-    ArrayList<String> textList;
+    ArrayList<String> textList = new ArrayList<>();
     UserBean loginer;
     private FloatingActionButton faBtn;
     private TextView userName;
+    private ImageView userAvatar;
+
+    // { menuId, name, todos}
+    private int userId =0;
+    private ArrayList<MenuModel.menuItem> menuItemArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +62,22 @@ public class MainActivity extends AppCompatActivity {
 //        if (bundle != null) {
 //            textList = bundle.getStringArrayList("SelectList");
 //        }
-
+        getAllMenus();
         getLoginer();
-        initList();
         initToolbar();
-        initViews();
+        // initViews();
     }
     //获取当前登录者的头像与名称
     //当前为fake数据
     private void getLoginer() {
-        loginer = new UserBean(DataUtil.dataUtilInstance.getAvatarRandom(), "啦啦啦啦");
+        String name = "";
+        String account = "";
+        SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
+        if (pref != null) {
+            name = pref.getString("name","");
+            account = pref.getString("account", "");
+        }
+        loginer = new UserBean(DataUtil.dataUtilInstance.getAvatarRandom(), name, account);
         //存到DataUtil方便存取
         DataUtil.dataUtilInstance.setLoginer(loginer);
     }
@@ -101,23 +117,26 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
         userName = mToolbar.findViewById(R.id.id_userName);
+        userAvatar = mToolbar.findViewById(R.id.id_userHeader);
         userName.setText(DataUtil.dataUtilInstance.getLoginer().getName());
-
+        userAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initList() {
         mList = new ArrayList<TaskGroupBean>();
-
         mList.add(new TaskGroupBean(R.drawable.icon_create_new_group,"创建新清单"));
 //        String groupName = getIntent().getStringExtra("groupName");
 //        if(!groupName.isEmpty() && groupName != null){
 //            textList.add(groupName);
 //        }
-        textList = new ArrayList<>();
-        textList.addAll(DataUtil.dataUtilInstance.getGroup());
-        Log.d("Check",textList.size()+"");
+        textList = DataUtil.dataUtilInstance.getGroup();
         if (textList.size() != 0){
             for(int i = 0; i < textList.size(); ++i){
                 mList.add(new TaskGroupBean(R.drawable.icon_task_group2,textList.get(i)));
@@ -125,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
         }else{
             Toast.makeText(MainActivity.this,"没有默认任务组",Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     private void initViews() {
@@ -150,6 +167,9 @@ public class MainActivity extends AppCompatActivity {
                 if(position != 0) {
                     Intent intent = new Intent(MainActivity.this, ItemClickActivity.class);
                     intent.putExtra("groupName", mList.get(position).getName());
+                    intent.putExtra("menuId", menuItemArrayList.get(position-1).getMenu_id());
+                    intent.putExtra("userId", userId);
+                    Log.i("menuId", menuItemArrayList.get(position-1).getMenu_id()+"");
                     startActivity(intent);
                 }else{
                     Intent intent = new Intent(MainActivity.this, AddGroupActivity.class);
@@ -159,16 +179,20 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemLongClick(View view, final int position) {
-                new AlertDialog.Builder(MainActivity.this)
+                AlertDialog alert = null;
+                alert = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("确认删除吗？")
                         .setNegativeButton("取消",null)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                taskRecyclerviewAdapter.removeData(position);
+                                // taskRecyclerviewAdapter.removeData(position);
+                                deleteMenu(menuItemArrayList.get(position-1).getMenu_id(), position);
                             }
-                        })
-                        .show();
+                        }).create();
+                alert.show();
+                alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+                alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
             }
         });
 
@@ -189,5 +213,76 @@ public class MainActivity extends AppCompatActivity {
 
     public FloatingActionButton getFaBtn(){
         return faBtn;
+    }
+
+    public void getAllMenus(){
+        String account = "";
+        SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
+        if (pref != null) {
+            account = pref.getString("account","");
+        }
+        final String finalAccount = account;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MenuModel menuModel = GetMenus.getMenusApi(finalAccount);
+                if (menuModel.getCodeText().equals("000000")){
+                    // 获取成功
+                    textList = new ArrayList<String>();
+                    MenuModel.Data data = menuModel.getData();
+                    // 存储userId
+                    userId = data.getUserId();
+                    loginer.setUserId(userId);
+                    DataUtil.dataUtilInstance.setLoginer(loginer);
+
+                    ArrayList<com.example.taskmanager.network.model.MenuModel.menuItem> menus = data.getMenus();
+                    menuItemArrayList = menus;
+                    DataUtil.dataUtilInstance.setMenuList(menuItemArrayList);
+                    for (int i=0;i<menus.size();i++){
+                        Log.i("menu_id", menus.get(i).getMenu_id()+"");
+                        Log.i("name", menus.get(i).getName()+"");
+                        textList.add(menus.get(i).getName());
+                        ArrayList<TodoModel.todoItem> todos = menus.get(i).getTodos();
+                        for(int j=0;j<todos.size();j++){
+                            Log.i("todo_id", todos.get(j).getId()+"");
+                            Log.i("title", todos.get(j).getTitle()+"");
+                            Log.i("isFinished", todos.get(j).getIsFinished()+"");
+                        }
+                    }
+                    DataUtil.dataUtilInstance.setGroup(textList);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            initList();
+                            initViews();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    public void deleteMenu(int menuId, int position){
+        final int finalMenuId = menuId;
+        final int finalPosition = position;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel deleteMenuModel = DeleteMenu.deleteMenu(finalMenuId);
+                Log.i("errCode", deleteMenuModel.getCodeText());
+                Log.i("errMsg", deleteMenuModel.getMessageText());
+                if(deleteMenuModel.getCodeText().equals("000000")){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            taskRecyclerviewAdapter.removeData(finalPosition);
+                            Toast.makeText(MainActivity.this, "删除成功",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    // getAllMenus();
+                }
+            }
+        }).start();
     }
 }

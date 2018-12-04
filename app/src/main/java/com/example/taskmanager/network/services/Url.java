@@ -20,5 +20,13 @@ public class Url {
     public static final String test = "http://httpbin.org/get";
     public static final String login = catUrl("/user/login");
     public static final String register = catUrl("/user/createUser");
-    public static final String getMenus = catUrl("/getAllTodos?userId=") + userId.getUserId();
+    public static final String getMenus = catUrl("/menu/getAllTodos");
+    public static final String getTodosByMenu = catUrl("/menu/getTodosByMenu");
+    public static final String createTodo = catUrl("/menu/createTodo");
+    public static final String createMenu = catUrl("/menu/createMenu");
+    public static final String deleteMenu = catUrl("/menu/removeByMenu");
+    public static final String deleteTodo = catUrl("/menu/deleteTodo");
+    public static final String changeTodoStatus = catUrl("/menu/changeTodoStatus");
+    public static final String changeUserName = catUrl("/user/changeUserName");
+    public static final String changeUserPwd = catUrl("/user/modifyPwd");
 }

@@ -9,33 +9,19 @@ import java.util.ArrayList;
  */
 
 public class MenuModel extends BaseHttpModel {
-    private class todoItem {
-        @SerializedName("id")
-        private int id;
-        @SerializedName("title")
-        private String title;
-        @SerializedName("isFinished")
-        private Boolean isFinished;
-        public int getId(){return id;}
-        public void setId(int id){this.id = id;}
-        public String getTitle(){return this.title;}
-        public void setTitle(String title){this.title = title; }
-        public Boolean getIsFinished(){return this.isFinished;}
-        public void setIsFinished(Boolean isFinished){this.isFinished = isFinished;}
-    }
     public class menuItem {
         @SerializedName("menu_id")
         private int menu_id;
         @SerializedName("name")
         private String name;
         @SerializedName("todos")
-        private ArrayList<todoItem> todos;
+        private ArrayList<TodoModel.todoItem> todos;
         public int getMenu_id(){return this.menu_id;}
         public void setMenu_id(int menu_id){this.menu_id = menu_id;}
         public String getName(){return this.name;}
         public void setName(String name){this.name = name;}
-        public ArrayList<todoItem> getTodos(){return this.todos;}
-        public void setTodos(ArrayList<todoItem> todos){this.todos = todos;}
+        public ArrayList<TodoModel.todoItem> getTodos(){return this.todos;}
+        public void setTodos(ArrayList<TodoModel.todoItem> todos){this.todos = todos;}
     }
     public class Data {
         @SerializedName("user_id")
