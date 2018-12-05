@@ -242,12 +242,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("menu_id", menus.get(i).getMenu_id()+"");
                         Log.i("name", menus.get(i).getName()+"");
                         textList.add(menus.get(i).getName());
-                        ArrayList<TodoModel.todoItem> todos = menus.get(i).getTodos();
-                        for(int j=0;j<todos.size();j++){
-                            Log.i("todo_id", todos.get(j).getId()+"");
-                            Log.i("title", todos.get(j).getTitle()+"");
-                            Log.i("isFinished", todos.get(j).getIsFinished()+"");
-                        }
                     }
                     DataUtil.dataUtilInstance.setGroup(textList);
                     runOnUiThread(new Runnable() {
