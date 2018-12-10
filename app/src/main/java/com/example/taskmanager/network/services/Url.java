@@ -29,4 +29,7 @@ public class Url {
     public static final String changeTodoStatus = catUrl("/menu/changeTodoStatus");
     public static final String changeUserName = catUrl("/user/changeUserName");
     public static final String changeUserPwd = catUrl("/user/modifyPwd");
+    public static final String askingInvitation = catUrl("/team/isBeingInvited");
+    public static final String addTeamMember = catUrl("/team/addMemeber");
+    public static final String answerRequest = catUrl("/team/answerInvitaion");
 }

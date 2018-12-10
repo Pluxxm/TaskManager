@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -27,14 +29,18 @@ import com.example.taskmanager.adapter.TaskRecyclerviewAdapter;
 import com.example.taskmanager.bean.TaskGroupBean;
 import com.example.taskmanager.bean.UserBean;
 import com.example.taskmanager.fragment.AddTaskFragment;
+import com.example.taskmanager.network.apis.AnswerRequest;
+import com.example.taskmanager.network.apis.AskingInvitation;
 import com.example.taskmanager.network.apis.DeleteMenu;
 import com.example.taskmanager.network.apis.GetMenus;
+import com.example.taskmanager.network.model.AskingModel;
 import com.example.taskmanager.network.model.BaseHttpModel;
 import com.example.taskmanager.network.model.MenuModel;
-import com.example.taskmanager.network.model.TodoModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,8 +54,28 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton faBtn;
     private TextView userName;
     private ImageView userAvatar;
+    //团队协作
+    String teamName;
+    String creatorName;
+    int teamId;
 
-    // { menuId, name, todos}
+    Timer timer = new Timer();
+    Handler myHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 0:
+                    timer.cancel();
+                    showIfAcceptInvitationModel();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    // { menuId, name}
     private int userId =0;
     private ArrayList<MenuModel.menuItem> menuItemArrayList = new ArrayList<>();
 
@@ -62,6 +88,17 @@ public class MainActivity extends AppCompatActivity {
 //        if (bundle != null) {
 //            textList = bundle.getStringArrayList("SelectList");
 //        }
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                boolean flag = askingThread();
+                Log.i("flag", flag+"");
+                if(flag){
+                    myHandler.sendEmptyMessage(0);
+                }
+            }
+        };
+        timer.schedule(task, 0, 3000);
         getAllMenus();
         getLoginer();
         initToolbar();
@@ -275,6 +312,95 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                     // getAllMenus();
+                }
+            }
+        }).start();
+    }
+
+    public boolean askingThread(){
+        String account = "";
+        SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
+        if (pref != null) {
+            account = pref.getString("account","");
+        }
+        final String finalAccount = account;
+        Log.i("account", account);
+        AskingModel askingInvitation = AskingInvitation.askingInvitation(finalAccount);
+        Log.i("ask", askingInvitation.getCodeText());
+        Log.i("ask", askingInvitation.getMessageText());
+        if(askingInvitation.getData().getStatus()){
+            creatorName = askingInvitation.getData().getCreatorName();
+            teamName = askingInvitation.getData().getTeamName();
+            teamId = askingInvitation.getData().getTeamId();
+        }
+        return askingInvitation.getData().getStatus();
+    }
+
+    private void showIfAcceptInvitationModel() {
+        android.app.AlertDialog alert = null;
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        alert = builder.setTitle("邀请")
+                .setMessage("你是否接受"+creatorName+"邀请,共同协作"+teamName+"?")
+                .setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.i("button", "拒绝");
+                        answerInvitation(false);
+                        timer = new Timer();
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                boolean flag = askingThread();
+                                Log.i("flag", flag+"");
+                                if(flag){
+                                    myHandler.sendEmptyMessage(0);
+                                }
+                            }
+                        };
+                        timer.schedule(task, 0, 3000);
+                    }
+                })
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.i("button", "确定");
+                        answerInvitation(true);
+                        timer = new Timer();
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                boolean flag = askingThread();
+                                Log.i("flag", flag+"");
+                                if(flag){
+                                    myHandler.sendEmptyMessage(0);
+                                }
+                            }
+                        };
+                        timer.schedule(task, 0, 3000);
+                    }
+                }).create();
+        alert.show();
+        // 必须show 之后才可以调用getButton
+        alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+        alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+    }
+
+    private void answerInvitation(final boolean answer){
+        String account = "";
+        SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
+        if (pref != null) {
+            account = pref.getString("account","");
+        }
+        final String finalAccount = account;
+        final int finalTeamId = teamId;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BaseHttpModel answerInvitation = AnswerRequest.answerRequest(finalAccount,finalTeamId,answer);
+                Log.i("answerInvitation", answerInvitation.getMessageText());
+                Log.i("answerInvitation", answerInvitation.getCodeText());
+                if(answerInvitation.getCodeText().equals("000000")){
+                    getAllMenus();
                 }
             }
         }).start();
